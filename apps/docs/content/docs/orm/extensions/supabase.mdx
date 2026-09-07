@@ -59,7 +59,7 @@ This installs `@prisma/orm-postgres` and the Prisma 8 CLI, then creates several 
 - `src/prisma/db.ts`: the database client. You will replace it with a Supabase-aware version in step 8.
 - `.env.example`: a template for your environment variables.
 
-If the directory has no `package.json`, the scaffold creates one with `"type": "module"`. It also runs the first `contract emit` for you, so the generated types exist from the start. The scaffold adds `prisma` as a dev dependency, so after this step `npx prisma` and `npx prisma@latest` run the same CLI.
+If the directory has no `package.json`, the scaffold creates one with `"type": "module"`. It also runs the first `contract emit` for you, so the generated types exist from the start. The scaffold adds `prisma` as a dev dependency; this guide keeps using `npx prisma@latest` so every command runs the current release candidate.
 
 :::warning
 
@@ -176,14 +176,14 @@ Three commands take the schema live:
 ```npm
 npx prisma@latest contract emit
 npx prisma@latest migration plan --name init
-npx prisma@latest db migrate
+npx prisma@latest db migrate --advance-ref db
 ```
 
 Here is what each does:
 
 - `contract emit` checks your schema and generates the TypeScript types.
 - `migration plan` compares your schema against the database and writes a migration under `migrations/app/`. The first run also snapshots the Supabase extension's contract under `migrations/snapshots/`, referenced from `migrations/supabase/`. Commit the whole `migrations` directory; it lets CI and production apply migrations without loading the extension package.
-- `db migrate` applies the migration. For this schema that means the table, an index on `userId`, the foreign key into `auth.users`, Row Level Security, and all four policies.
+- `db migrate` applies the migration. For this schema that means the table, an index on `userId`, the foreign key into `auth.users`, Row Level Security, and all four policies. `--advance-ref db` records which contract the database is on, so the next `migration plan` knows where to start.
 
 Always run `contract emit` before `migration plan`. The plan reads the emitted contract, not the `.prisma` file, so an unemitted edit plans as a no-op.
 
@@ -203,14 +203,7 @@ You wrote no SQL, and every future policy change shows up as a schema diff in yo
 
 :::info
 
-For the next migration, tell Prisma where to plan from. Set the `db` ref once, then advance it with each migrate:
-
-```npm
-npx prisma@latest migration ref set db <contract-hash>
-npx prisma@latest db migrate --advance-ref db
-```
-
-The contract hash is the `to` value printed by `migration plan`. Without the ref, a second `migration plan` fails with `MIGRATION.PLAN_ORIGIN_UNKNOWN` rather than silently re-planning from an empty database.
+Every later schema change is the same three commands: `contract emit`, `migration plan --name <slug>`, `db migrate --advance-ref db`. If you apply a migration without `--advance-ref db`, the next `migration plan` fails with `MIGRATION.PLAN_ORIGIN_UNKNOWN` rather than silently re-planning from an empty database. The error prints the hash to set with `migration ref set db <hash>`.
 
 :::
 
@@ -322,6 +315,15 @@ await asAlice.orm.public.Note.select('id').create({ title: 'forged', body: null,
 const anon = await db.asAnon().orm.public.Note.select('id').all().toArray();
 console.log('anon sees nothing:', anon.length === 0);
 
+// service_role skips RLS. This line documents the bypass; it proves no policy.
+const all = await db.asServiceRole().orm.public.Note.select('id').all().toArray();
+console.log('service_role sees all:', all.length >= 2);
+
+// A token that was not signed by your project is rejected before any query runs.
+await db.asUser(alice.token.slice(0, -4) + 'xxxx')
+  .then(() => console.log('forged JWT rejected: false'))
+  .catch((e) => console.log('forged JWT rejected:', e.code));
+
 process.exit(0);
 ```
 
@@ -336,11 +338,13 @@ alice sees only her rows: true
 cross-user update touches 0 rows: true
 forged insert rejected: true
 anon sees nothing: true
+service_role sees all: true
+forged JWT rejected: SUPABASE.JWT_INVALID
 ```
 
 :::warning
 
-Keep `service_role` out of these checks. It skips RLS by design, so a test that reads through `asServiceRole()` can never prove a policy works.
+The `service_role` line only shows that the bypass exists. It skips RLS by design, so a test that reads through `asServiceRole()` can never prove a policy works. Keep it out of any test that is meant to guard a policy.
 
 :::
 
@@ -398,8 +402,9 @@ For creating users, password resets, and other account operations, use the Supab
 ## Troubleshooting
 
 - `MIGRATION.CONTRACT_SPACE_LAYOUT_VIOLATION` with `declaredButUnmigrated: supabase`: you skipped `migration plan`. Run `npx prisma@latest migration plan --name <slug>` once and retry.
-- `MIGRATION.PLAN_ORIGIN_UNKNOWN`: migrations exist but no `db` ref is set. Run `npx prisma@latest migration ref set db <hash>` with the hash of the contract your database is on (see step 7).
+- `MIGRATION.PLAN_ORIGIN_UNKNOWN`: migrations exist but no `db` ref is set, usually because a `db migrate` ran without `--advance-ref db`. Run `npx prisma@latest migration ref set db <hash>` with the hash the error prints, then keep using `--advance-ref db`.
 - `CLI.UNKNOWN_COMMAND` for `migrate`: the command is `db migrate` in the current release candidate.
+- `MIGRATION.RUNNER_FAILED` with `cannot drop column ... because other objects depend on it`: you removed a column and a policy that references it in the same change. The planner currently drops the column first ([prisma/orm#30226](https://github.com/prisma/orm/issues/30226)). Remove the policy in one migration, then the column in the next.
 - `SUPABASE.CONFIG_INVALID`: set exactly one of `jwksUrl` or `jwtSecret`.
 - `SUPABASE.JWT_INVALID` with an algorithm mismatch in `meta.reason`: you passed an asymmetric-key token to a `jwtSecret` client or vice versa; switch the key source.
 - Connection timeouts or DNS failures: use the session pooler host, not `db.<ref>.supabase.co`, on IPv4 networks.
