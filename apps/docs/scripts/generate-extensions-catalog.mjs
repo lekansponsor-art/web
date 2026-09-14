@@ -44,6 +44,7 @@ const DATABASE_LABELS = {
   mariadb: "MariaDB",
   cockroachdb: "CockroachDB",
   mssql: "SQL Server",
+  indexeddb: "IndexedDB",
 };
 const databaseLabel = (slug) =>
   DATABASE_LABELS[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);

@@ -66,6 +66,7 @@ const DATABASE_LABELS: Record<string, string> = {
   mariadb: "MariaDB",
   cockroachdb: "CockroachDB",
   mssql: "SQL Server",
+  indexeddb: "IndexedDB",
 };
 
 /** Display name for a database slug; unknown slugs are capitalized. */
