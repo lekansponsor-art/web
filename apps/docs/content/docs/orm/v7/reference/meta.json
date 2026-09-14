@@ -4,6 +4,7 @@
   "pages": [
     "prisma-cli-reference",
     "prisma-client-reference",
+    "...prisma-client",
     "prisma-schema-reference",
     "prisma-config-reference",
     "connection-urls",

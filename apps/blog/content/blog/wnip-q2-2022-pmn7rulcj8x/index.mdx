@@ -347,7 +347,7 @@ user.email //  You don't need to check if the user is null
 ```
 The APIs will be convenient for scripts API routes where you're already handling exceptions and want to fail fast.
 
-Refer to the API reference in our docs to learn how [`findUniqueOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#finduniqueorthrow) and [`findFirstOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#findfirstorthrow) differ from `findUnique` and `findFirst` respectively.
+Refer to the API reference in our docs to learn how [`findUniqueOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-queries#finduniqueorthrow) and [`findFirstOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-queries#findfirstorthrow) differ from `findUnique` and `findFirst` respectively.
 
 ### General improvements
 
@@ -510,7 +510,7 @@ We deprecated the `rejectOnNotFound` parameter in favor of the new `findUniqueOr
 
 We expect the new APIs to be easier to understand and more type-safe.
 
-Refer to the [`findUniqueOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#finduniqueorthrow) and [`findFirstOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#findfirstorthrow) docs to learn how you can upgrade.
+Refer to the [`findUniqueOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-queries#finduniqueorthrow) and [`findFirstOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-queries#findfirstorthrow) docs to learn how you can upgrade.
 
 #### Fix rounding errors on big numbers in SQLite
 

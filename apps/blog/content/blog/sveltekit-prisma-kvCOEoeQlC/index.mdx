@@ -377,7 +377,7 @@ return { feed: response };
 ```
 The function above does the following:
 
-1. Queries all published posts, including their authors, using the [`include` option](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#include).
+1. Queries all published posts, including their authors, using the [`include` option](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-query-options#include).
 2. Assigns the `response` result to the `feed` object response.
 
 Currently, the client is still using dummy data from `data.json` instead of the SQLite database. Replace the code in `src/routes/+page.svelte` with the code below to rectify this: 
@@ -484,7 +484,7 @@ export const load = (async ({ params: { id } }) => {
 ```
 The load function above does the following:
 
-1. Leverages the load function [`data` prop](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#include) to get the post `id`.
+1. Leverages the load function [`data` prop](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-query-options#include) to get the post `id`.
 2. Queries the database for a single post by its `id`.
 3. Returns the `post` object response.
 

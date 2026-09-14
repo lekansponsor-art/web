@@ -1,0 +1,353 @@
+---
+title: PrismaClient constructor
+description: 'Reference for the PrismaClient constructor and its parameters: adapter, accelerateUrl, log, errorFormat, comments, and transactionOptions'
+url: /orm/v7/reference/prisma-client/prisma-client-constructor
+metaTitle: PrismaClient constructor
+metaDescription: API reference documentation for the PrismaClient constructor and the parameters it accepts.
+---
+
+The examples on this page use the [schema at the top of the Prisma Client API reference](/orm/v7/reference/prisma-client-reference).
+
+This section describes the `PrismaClient` constructor and its parameters.
+
+### `adapter`
+
+Specifies a [driver adapter](/orm/v7/core-concepts/supported-databases/database-drivers#driver-adapters) for database connections. Required unless using [`accelerateUrl`](#accelerateurl).
+
+#### Example
+
+```ts
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../prisma/generated/client";
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
+```
+
+### `accelerateUrl`
+
+Specifies a [Prisma Accelerate](https://www.prisma.io/accelerate) URL for remote query execution. Required unless using [`adapter`](#adapter).
+
+#### Example
+
+```ts
+import { PrismaClient } from "../prisma/generated/client";
+
+const prisma = new PrismaClient({
+  accelerateUrl: process.env.ACCELERATE_URL,
+});
+```
+
+### `log`
+
+Determines the type and level of logging. See also: [Logging](/orm/v7/prisma-client/observability-and-logging/logging)
+
+#### Options
+
+| Option                   | Example                                                                  |
+| ------------------------ | ------------------------------------------------------------------------ |
+| Array of log levels      | `[ "info", "query" ]`                                                    |
+| Array of log definitions | `[ { level: "info", emit: "event" }, { level: "warn", emit: "stdout" }]` |
+
+##### Log levels
+
+| Name    | Example                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `query` | Logs all queries run by Prisma. <br /><br /> For relational databases this logs all SQL queries. Example: <br />`prisma:query SELECT "public"."User"."id", "public"."User"."email" FROM "public"."User" WHERE ("public"."User"."id") IN (SELECT "t0"."id" FROM "public"."User" AS "t0" INNER JOIN "public"."Post" AS "j0" ON ("j0"."authorId") = ("t0"."id") WHERE ("j0"."views" > $1 AND "t0"."id" IS NOT NULL)) OFFSET $2` <br /><br /> For MongoDB this logs queries using the [`mongosh` shell](https://www.mongodb.com/docs/mongodb-shell/#mongodb-binary-bin.mongosh) format. Example: <br /> `prisma:query db.User.deleteMany({ _id: ( $in: [ “6221ce49f756b0721fc00542”, ], }, })` |
+| `info`  | Example: <br />`prisma:info Started http server on http://127.0.0.1:58471`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `warn`  | Warnings.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `error` | Errors.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+
+##### Emit formats
+
+| Name     | Description                                                   |
+| -------- | ------------------------------------------------------------- |
+| `stdout` | See: [stdout](https://en.wikipedia.org/wiki/Standard_streams) |
+| `event`  | Raises an event that you can subscribe to.                    |
+
+##### Event types
+
+The `query` event type:
+
+```ts title="index.d.ts"
+export type QueryEvent = {
+  timestamp: Date;
+  query: string; // Query sent to the database
+  params: string; // Query parameters
+  duration: number; // Time elapsed (in milliseconds) between client issuing query and database responding - not only time taken to run query
+  target: string;
+};
+```
+
+Note that for MongoDB, the `params` and `duration` fields will be undefined.
+
+All other log level event types:
+
+```ts title="index.d.ts"
+export type LogEvent = {
+  timestamp: Date;
+  message: string;
+  target: string;
+};
+```
+
+#### Examples
+
+##### Log `query` and `info` to `stdout`
+
+```ts highlight=3;normal;
+import { PrismaClient } from "../prisma/generated/client";
+
+const prisma = new PrismaClient({ log: ["query", "info"] });
+
+async function main() {
+  const countUsers = await prisma.user.count({});
+}
+
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
+```
+
+```bash
+prisma:info  Starting a postgresql pool with 13 connections.
+prisma:info  Started http server
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."User"."id" FROM "public"."User" WHERE 1=1 ORDER BY "public"."User"."coinflips" ASC OFFSET $1) AS "sub"
+```
+
+##### Log a `query` event to console
+
+```ts
+import { PrismaClient } from "../prisma/generated/client";
+
+const prisma = new PrismaClient({
+  log: [{ level: "query", emit: "event" }],
+});
+
+prisma.$on("query", (e) => {
+  console.log(e);
+});
+
+async function main() {
+  const countUsers = await prisma.user.count({});
+}
+
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
+```
+
+```json
+{
+  timestamp: 2020-11-17T10:32:10.898Z,
+  query: 'SELECT COUNT(*) FROM (SELECT "public"."User"."id" FROM "public"."User" WHERE 1=1 OFFSET $1) AS "sub"',
+  params: '[0]',
+  duration: 5,
+  target: 'quaint::connector::metrics'
+}
+```
+
+##### Log `info`, `warn`, and `error` events to console
+
+```ts
+import { PrismaClient } from "../prisma/generated/client";
+
+const prisma = new PrismaClient({
+  log: [
+    { level: "warn", emit: "event" },
+    { level: "info", emit: "event" },
+    { level: "error", emit: "event" },
+  ],
+});
+
+prisma.$on("warn", (e) => {
+  console.log(e);
+});
+
+prisma.$on("info", (e) => {
+  console.log(e);
+});
+
+prisma.$on("error", (e) => {
+  console.log(e);
+});
+
+async function main() {
+  const countUsers = await prisma.user.count({});
+}
+
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
+```
+
+```json
+{
+  timestamp: 2020-11-17T10:33:24.592Z,
+  message: 'Starting a postgresql pool with 13 connections.',
+  target: 'quaint::pooled'
+}
+{
+  timestamp: 2020-11-17T10:33:24.637Z,
+  message: 'Started http server',
+  target: 'query_engine::server'
+}
+```
+
+### `errorFormat`
+
+Determines the level and formatting of errors returned by Prisma Client.
+
+#### Error formats
+
+| Name                  | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `undefined`           | If it's not defined, the default is colorless. |
+| `pretty`              | Enables pretty error formatting.               |
+| `colorless` (default) | Enables colorless error formatting.            |
+| `minimal`             | Enables minimal error formatting.              |
+
+#### Examples
+
+##### No error formatting
+
+```ts
+const prisma = new PrismaClient({
+  // Defaults to colorless
+});
+```
+
+##### `pretty` error formatting
+
+```ts
+const prisma = new PrismaClient({
+  errorFormat: "pretty",
+});
+```
+
+##### `colorless` error formatting
+
+```ts
+const prisma = new PrismaClient({
+  errorFormat: "colorless",
+});
+```
+
+##### `minimal` error formatting
+
+```ts
+const prisma = new PrismaClient({
+  errorFormat: "minimal",
+});
+```
+
+### `comments`
+
+Defines an array of [SQL commenter plugins](/orm/v7/prisma-client/observability-and-logging/sql-comments) that add metadata to your SQL queries as comments. This is useful for observability, debugging, and correlating queries with application traces.
+
+#### Options
+
+| Option                 | Description                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `SqlCommenterPlugin[]` | An array of SQL commenter plugin functions. Each plugin receives query context and returns key-value pairs. |
+
+#### First-party plugins
+
+| Package                              | Description                                                                      |
+| ------------------------------------ | -------------------------------------------------------------------------------- |
+| `@prisma/sqlcommenter-query-tags`    | Adds arbitrary tags to queries within an async context using `AsyncLocalStorage` |
+| `@prisma/sqlcommenter-trace-context` | Adds W3C Trace Context (`traceparent`) headers for distributed tracing           |
+
+#### Examples
+
+##### Using first-party plugins
+
+```ts
+import { PrismaClient } from "../prisma/generated/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { queryTags } from "@prisma/sqlcommenter-query-tags";
+import { traceContext } from "@prisma/sqlcommenter-trace-context";
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+
+const prisma = new PrismaClient({
+  adapter,
+  comments: [queryTags(), traceContext()],
+});
+```
+
+##### Creating a custom plugin
+
+```ts
+import { PrismaClient } from "../prisma/generated/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import type { SqlCommenterPlugin } from "@prisma/sqlcommenter";
+
+const appPlugin: SqlCommenterPlugin = (context) => ({
+  application: "my-app",
+  environment: process.env.NODE_ENV ?? "development",
+  model: context.query.modelName,
+  action: context.query.action,
+});
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+
+const prisma = new PrismaClient({
+  adapter,
+  comments: [appPlugin],
+});
+```
+
+This produces SQL queries with comments like:
+
+```sql
+SELECT "id", "name" FROM "User" /*action='findMany',application='my-app',environment='production',model='User'*/
+```
+
+For more details, see [SQL comments](/orm/v7/prisma-client/observability-and-logging/sql-comments).
+
+### `transactionOptions`
+
+Sets default [transaction options](/orm/v7/prisma-client/queries/transactions#transaction-isolation-level) globally.
+
+#### Remarks
+
+- The transaction levels can be overridden on a per-transaction level.
+
+#### Options
+
+| Option           | Description                                                                                                                                                                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `maxWait`        | The maximum amount of time Prisma Client will wait to acquire a transaction from the database. The default value is 2 seconds.                                                                                                                    |
+| `timeout`        | The maximum amount of time the interactive transaction can run before being canceled and rolled back. The default value is 5 seconds.                                                                                                             |
+| `isolationLevel` | Sets the [transaction isolation level](/orm/v7/prisma-client/queries/transactions#transaction-isolation-level). By default this is set to the value currently configured in your database. The available levels can vary depending on the database you use. |
+
+#### Example
+
+```ts
+const prisma = new PrismaClient({
+  transactionOptions: {
+    isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    maxWait: 5000, // default: 2000
+    timeout: 10000, // default: 5000
+  },
+});
+```

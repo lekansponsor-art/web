@@ -222,7 +222,7 @@ The following string filters are available:
 - [`string_starts_with`](/orm/v7/reference/prisma-client-reference#string_starts_with)
 - [`string_ends_with`](/orm/v7/reference/prisma-client-reference#string_ends_with) .
 
-To use case insensitive filter with these, you can use the [`mode`](/orm/v7/reference/prisma-client-reference#mode) option:
+To use case insensitive filter with these, you can use the [`mode`](/orm/v7/reference/prisma-client/filter-conditions-and-operators#mode) option:
 
 ```ts tab="PostgreSQL"
 const getUsers = await prisma.user.findMany({

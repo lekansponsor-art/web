@@ -210,7 +210,7 @@ See [Relation queries](/orm/v7/prisma-client/queries/relation-queries) for conne
 
 ### Delete a single record
 
-The following query uses [`delete()`](/orm/v7/reference/prisma-client-reference#delete) to delete a single `User` record:
+The following query uses [`delete()`](/orm/v7/reference/prisma-client/model-queries#delete) to delete a single `User` record:
 
 ```ts
 const deleteUser = await prisma.user.delete({
@@ -224,7 +224,7 @@ Attempting to delete a user with one or more posts result in an error, as every 
 
 ### Delete multiple records
 
-The following query uses [`deleteMany()`](/orm/v7/reference/prisma-client-reference#deletemany) to delete all `User` records where `email` contains `prisma.io`:
+The following query uses [`deleteMany()`](/orm/v7/reference/prisma-client/model-queries#deletemany) to delete all `User` records where `email` contains `prisma.io`:
 
 ```ts
 const deleteUsers = await prisma.user.deleteMany({
@@ -240,7 +240,7 @@ Attempting to delete a user with one or more posts result in an error, as every 
 
 ### Delete all records
 
-The following query uses [`deleteMany()`](/orm/v7/reference/prisma-client-reference#deletemany) to delete all `User` records:
+The following query uses [`deleteMany()`](/orm/v7/reference/prisma-client/model-queries#deletemany) to delete all `User` records:
 
 ```ts
 const deleteUsers = await prisma.user.deleteMany({});
@@ -256,7 +256,7 @@ You can configure cascading deletes using [referential actions](/orm/v7/prisma-s
 
 :::
 
-The following query uses [`delete()`](/orm/v7/reference/prisma-client-reference#delete) to delete a single `User` record:
+The following query uses [`delete()`](/orm/v7/reference/prisma-client/model-queries#delete) to delete a single `User` record:
 
 ```ts
 const deleteUser = await prisma.user.delete({
@@ -314,7 +314,7 @@ The following shows how to delete all records from all tables with Prisma Client
 
 #### Deleting all data with `deleteMany()`
 
-When you know the order in which your tables should be deleted, you can use the [`deleteMany`](/orm/v7/reference/prisma-client-reference#deletemany) function. This is executed synchronously in a [`$transaction`](/orm/v7/prisma-client/queries/transactions) and can be used with all types of databases.
+When you know the order in which your tables should be deleted, you can use the [`deleteMany`](/orm/v7/reference/prisma-client/model-queries#deletemany) function. This is executed synchronously in a [`$transaction`](/orm/v7/prisma-client/queries/transactions) and can be used with all types of databases.
 
 ```ts
 const deletePosts = prisma.post.deleteMany();

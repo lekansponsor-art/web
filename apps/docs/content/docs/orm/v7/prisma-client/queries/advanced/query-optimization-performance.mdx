@@ -57,12 +57,12 @@ Use [Query Insights](/query-insights) to identify which queries are affected and
 
 It is generally more performant to read and write large amounts of data in bulk - for example, inserting `50,000` records in batches of `1000` rather than as `50,000` separate inserts. `PrismaClient` supports the following bulk queries:
 
-- [`createMany()`](/orm/v7/reference/prisma-client-reference#createmany)
-- [`createManyAndReturn()`](/orm/v7/reference/prisma-client-reference#createmanyandreturn)
-- [`deleteMany()`](/orm/v7/reference/prisma-client-reference#deletemany)
-- [`updateMany()`](/orm/v7/reference/prisma-client-reference#updatemany)
-- [`updateManyAndReturn()`](/orm/v7/reference/prisma-client-reference#updatemanyandreturn)
-- [`findMany()`](/orm/v7/reference/prisma-client-reference#findmany)
+- [`createMany()`](/orm/v7/reference/prisma-client/model-queries#createmany)
+- [`createManyAndReturn()`](/orm/v7/reference/prisma-client/model-queries#createmanyandreturn)
+- [`deleteMany()`](/orm/v7/reference/prisma-client/model-queries#deletemany)
+- [`updateMany()`](/orm/v7/reference/prisma-client/model-queries#updatemany)
+- [`updateManyAndReturn()`](/orm/v7/reference/prisma-client/model-queries#updatemanyandreturn)
+- [`findMany()`](/orm/v7/reference/prisma-client/model-queries#findmany)
 
 ## Reuse `PrismaClient` or use connection pooling to avoid database connection pool exhaustion
 
@@ -360,8 +360,8 @@ const posts = await prisma.post.findMany({
 
 This is not an efficient way to query. Instead, you can:
 
-- Use nested reads ([`include`](/orm/v7/reference/prisma-client-reference#include) ) to return users and related posts
-- Use the [`in`](/orm/v7/reference/prisma-client-reference#in) filter
+- Use nested reads ([`include`](/orm/v7/reference/prisma-client/model-query-options#include) ) to return users and related posts
+- Use the [`in`](/orm/v7/reference/prisma-client/filter-conditions-and-operators#in) filter
 - Set the [`relationLoadStrategy`](/orm/v7/prisma-client/queries/relation-queries#relation-load-strategies-preview) to `"join"`
 
 #### Solving n+1 with `include`

@@ -436,7 +436,7 @@ test('getPosts should separate published & un-published posts', async () => {
 
 ### Triggering and capturing errors
 
-You may want to test a case where a query throws. A good example is Prisma Client's [`findUniqueOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#finduniqueorthrow), which throws if no record is found. Because the client is mocked, you trigger the errored state yourself:
+You may want to test a case where a query throws. A good example is Prisma Client's [`findUniqueOrThrow`](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-queries#finduniqueorthrow), which throws if no record is found. Because the client is mocked, you trigger the errored state yourself:
 
 ```ts
 // src/script.ts

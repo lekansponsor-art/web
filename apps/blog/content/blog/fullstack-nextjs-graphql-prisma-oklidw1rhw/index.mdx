@@ -500,9 +500,9 @@ main()
     await prisma.$disconnect()
   })
 ```
-We are first creating a user using the [`create()`](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#create) function, which creates a new database record.
+We are first creating a user using the [`create()`](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-queries#create) function, which creates a new database record.
 
-Next, we are using the [`createMany()`](https://www.prisma.io/docs/orm/v7/reference/prisma-client-reference#createmany) function to create multiple records. We are passing the hard-coded data we have as a parameter.
+Next, we are using the [`createMany()`](https://www.prisma.io/docs/orm/v7/reference/prisma-client/model-queries#createmany) function to create multiple records. We are passing the hard-coded data we have as a parameter.
 
 By default, Next.js [forces the use of `ESNext` modules](https://github.com/vercel/next.js/issues/7361), we need to override this behavior or else we will not be able to execute the seeding script. To do so, first install `ts-node` as a development dependency:
 

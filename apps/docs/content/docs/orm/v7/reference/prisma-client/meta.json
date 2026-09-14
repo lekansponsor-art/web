@@ -1,0 +1,10 @@
+{
+  "title": "Prisma Client API",
+  "pages": [
+    "prisma-client-constructor",
+    "model-queries",
+    "model-query-options",
+    "nested-queries",
+    "filter-conditions-and-operators"
+  ]
+}

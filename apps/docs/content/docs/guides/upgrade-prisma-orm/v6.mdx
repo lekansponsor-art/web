@@ -284,7 +284,7 @@ model User {
 
 ### Removed `NotFoundError`
 
-In Prisma v6, we removed the `NotFoundError` in favor of `PrismaClientKnownRequestError` with error code [`P2025`](/orm/v7/reference/error-reference#p2025) in [`findUniqueOrThrow()`](/orm/v7/reference/prisma-client-reference#finduniqueorthrow) and [`findFirstOrThrow()`](/orm/v7/reference/prisma-client-reference#findfirstorthrow). If you've relied on catching `NotFoundError` instances in your code, you need to adjust the code accordingly.
+In Prisma v6, we removed the `NotFoundError` in favor of `PrismaClientKnownRequestError` with error code [`P2025`](/orm/v7/reference/error-reference#p2025) in [`findUniqueOrThrow()`](/orm/v7/reference/prisma-client/model-queries#finduniqueorthrow) and [`findFirstOrThrow()`](/orm/v7/reference/prisma-client/model-queries#findfirstorthrow). If you've relied on catching `NotFoundError` instances in your code, you need to adjust the code accordingly.
 
 #### Before
 

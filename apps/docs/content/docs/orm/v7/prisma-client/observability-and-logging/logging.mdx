@@ -6,7 +6,7 @@ metaTitle: Logging
 metaDescription: Learn how to configure Prisma Client to log the raw SQL queries it sends to the database and other information.
 ---
 
-Use the `PrismaClient` [`log`](/orm/v7/reference/prisma-client-reference#log) parameter to configure [log levels](/orm/v7/reference/prisma-client-reference#log-levels) , including warnings, errors, and information about the queries sent to the database.
+Use the `PrismaClient` [`log`](/orm/v7/reference/prisma-client/prisma-client-constructor#log) parameter to configure [log levels](/orm/v7/reference/prisma-client/prisma-client-constructor#log-levels) , including warnings, errors, and information about the queries sent to the database.
 
 Prisma Client supports two types of logging:
 
@@ -139,4 +139,4 @@ Query: db.User.aggregate([ { $project: { _id: 1, email: 1, name: 1, }, }, ])
 Query: db.Post.aggregate([ { $match: { userId: { $in: [ "622f0bbbdf635a42016ee325", ], }, }, }, { $project: { _id: 1, slug: 1, title: 1, body: 1, userId: 1, }, }, ])
 ```
 
-The exact [event (`e`) type and the properties available](/orm/v7/reference/prisma-client-reference#event-types) depends on the log level.
+The exact [event (`e`) type and the properties available](/orm/v7/reference/prisma-client/prisma-client-constructor#event-types) depends on the log level.

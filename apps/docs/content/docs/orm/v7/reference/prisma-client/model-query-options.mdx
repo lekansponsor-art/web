@@ -1,0 +1,971 @@
+---
+title: Model query options
+description: 'Reference for the options a model query accepts: select, include, omit, relationLoadStrategy, where, orderBy, and distinct'
+url: /orm/v7/reference/prisma-client/model-query-options
+metaTitle: Model query options
+metaDescription: 'API reference documentation for Prisma Client model query options: select, include, omit, relationLoadStrategy, where, orderBy, and distinct.'
+---
+
+The examples on this page use the [schema at the top of the Prisma Client API reference](/orm/v7/reference/prisma-client-reference).
+
+### `select`
+
+`select` defines which fields are included in the object that Prisma Client returns. See: [Select fields and include relations](/orm/v7/prisma-client/queries/select-fields).
+
+#### Remarks
+
+- You cannot combine `select` and `include` on the same level.
+- You can [select a `_count` of relations](#select-a-_count-of-relations).
+
+#### Examples
+
+##### Select the `name` and `profileViews` fields of a single `User` record
+
+```ts
+const result = await prisma.user.findUnique({
+  where: { id: 1 },
+  select: {
+    name: true,
+    profileViews: true,
+  },
+});
+```
+
+```json
+{
+  name: "Alice",
+  profileViews: 0
+}
+```
+
+##### Select the `email` and `role` fields of a multiple `User` records
+
+```ts
+const result = await prisma.user.findMany({
+  select: {
+    email: true,
+    role: true,
+  },
+});
+```
+
+```json
+[
+  {
+    email: "alice@prisma.io",
+    role: "ADMIN",
+  },
+  {
+    email: "bob@prisma.io",
+    role: "USER",
+  },
+];
+```
+
+##### Select a `_count` of relations
+
+```ts
+const usersWithCount = await prisma.user.findMany({
+  select: {
+    _count: {
+      select: { posts: true },
+    },
+  },
+});
+```
+
+```json
+{
+  _count: {
+    posts: 3;
+  }
+}
+```
+
+##### Select the 'id' and 'title' fields of related `Post` records
+
+```ts
+const result = await prisma.user.findMany({
+  select: {
+    id: true,
+    name: true,
+    posts: {
+      select: {
+        id: true,
+        title: true,
+      },
+    },
+  },
+});
+```
+
+```ts
+[
+  {
+    id: 1,
+    name: "Alice",
+    posts: [
+      { id: 1, title: "Hello World" },
+      { id: 2, title: "Bye bye" },
+    ],
+  },
+  {
+    id: 2,
+    name: "Bob",
+    posts: [],
+  },
+];
+```
+
+##### `include` inside `select`
+
+```ts
+const result = await prisma.user.findMany({
+  select: {
+    id: true,
+    name: true,
+    posts: {
+      include: {
+        author: true,
+      },
+    },
+  },
+});
+```
+
+```json
+[
+  {
+    id: 1,
+    name: "Alice",
+    posts: [
+      {
+        id: 1,
+        title: "Hello World",
+        published: true,
+        author: {
+          id: 1,
+          name: "Alice",
+          email: "alice@prisma.io",
+          role: "ADMIN",
+          coinflips: [true, false],
+          profileViews: 0,
+        },
+      },
+      {
+        id: 2,
+        title: "Bye bye",
+        published: false,
+        author: {
+          id: 1,
+          name: "Alice",
+          email: "alice@prisma.io",
+          role: "USER",
+          coinflips: [],
+          profileViews: 0,
+        },
+      },
+    ],
+  },
+];
+```
+
+### `include`
+
+`include` defines which relations are included in the result that Prisma Client returns. See: [Select fields and include relations](/orm/v7/prisma-client/queries/select-fields).
+
+#### Remarks
+
+- You can [`include` a `_count` of relations](#include-a-_count-of-relations).
+
+#### Examples
+
+##### Include the `posts` and `profile` relation when loading `User` records
+
+```ts
+const users = await prisma.user.findMany({
+  include: {
+    posts: true, // Returns all fields for all posts
+    profile: true, // Returns all Profile fields
+  },
+});
+```
+
+##### Include the `posts` relation on the returned objects when creating a new `User` record with two `Post` records
+
+```ts
+const user = await prisma.user.create({
+  data: {
+    email: "alice@prisma.io",
+    posts: {
+      create: [{ title: "This is my first post" }, { title: "Here comes a second post" }],
+    },
+  },
+  include: { posts: true }, // Returns all fields for all posts
+});
+```
+
+#### Generated types for `include`
+
+The following example demonstrates how to use TypeScript's `satisfies` operator with `include`:
+
+```ts
+const includePosts = { posts: true } satisfies Prisma.UserInclude;
+```
+
+##### Include a `_count` of relations
+
+```ts
+const usersWithCount = await prisma.user.findMany({
+  include: {
+    _count: {
+      select: { posts: true },
+    },
+  },
+});
+```
+
+```json
+{ id: 1, name: "Bob", email: "bob@prisma.io", _count: { posts: 3 } },
+{ id: 2,  name: "Enya", email: "enya@prisma.io", _count: { posts: 2 } }
+```
+
+### `omit`
+
+`omit` defines which fields are excluded in the object that Prisma Client returns.
+
+#### Remarks
+
+- You cannot combine `omit` and `select` since they serve opposite purposes.
+
+#### Examples
+
+##### Omit the `password` field from all `User` records
+
+```ts
+const result = await prisma.user.findMany({
+  omit: {
+    password: true,
+  },
+});
+```
+
+```json
+[
+  {
+    id: 1,
+    email: "jenny@prisma.io",
+    name: "Jenny",
+  },
+  {
+    id: 2,
+    email: "rose@prisma.io",
+    name: "Rose",
+  },
+];
+```
+
+##### Omit the `title` fields from all `User`'s `posts` relation
+
+```ts
+const results = await prisma.user.findMany({
+  omit: {
+    password: true,
+  },
+  include: {
+    posts: {
+      omit: {
+        title: true,
+      },
+    },
+  },
+});
+```
+
+```json
+[
+  {
+    id: 1,
+    email: "jenny@prisma.io",
+    name: "Jenny",
+    posts: [
+      {
+        id: 1,
+        author: {
+          id: 1,
+          email: "jenny@prisma.io",
+          name: "Jenny",
+        },
+        authorId: 1,
+      },
+    ],
+  },
+  {
+    id: 2,
+    email: "rose@prisma.io",
+    name: "Rose",
+    posts: [
+      {
+        id: 2,
+        author: {
+          id: 2,
+          email: "rose@prisma.io",
+          name: "Rose",
+        },
+        authorId: 2,
+      },
+    ],
+  },
+];
+```
+
+#### Generated types for `omit`
+
+The following example demonstrates how to use TypeScript's `satisfies` operator with `omit`:
+
+```ts
+const omitPassword = { password: true } satisfies Prisma.UserOmit;
+```
+
+### `relationLoadStrategy` (Preview)
+
+`relationLoadStrategy` specifies how a relation should be loaded from the database. It has two possible values:
+
+- `join` (default): Uses a database-level `LATERAL JOIN` (PostgreSQL) or correlated subqueries (MySQL) and fetches all data with a single query to the database.
+- `query`: Sends multiple queries to the database (one per table) and joins them on the application level.
+
+> **Note**: Once `relationLoadStrategy` moves from [Preview](/orm/v7/more/releases#preview) into [General Availability](/orm/v7/more/releases#generally-available-ga), `join` will universally become the default for all relation queries.
+
+You can learn more about join strategies in [Relation load strategies (Preview)](/orm/v7/prisma-client/queries/relation-queries#relation-load-strategies-preview).
+
+Because the `relationLoadStrategy` option is currently in Preview, you need to enable it via the `relationJoins` preview feature flag in your Prisma schema file:
+
+```prisma
+generator client {
+  provider        = "prisma-client"
+  output          = "./generated"
+  previewFeatures = ["relationJoins"]
+}
+```
+
+After adding this flag, you need to run `prisma generate` again to re-generate Prisma Client. The `relationJoins` feature is currently available on PostgreSQL, CockroachDB and MySQL.
+
+#### Remarks
+
+- In most situations, the default `join` strategy will be more effective. Use `query` if you want to save resources on your database server or if you profiling shows that the application-level join is more performant.
+- You can only specify the `relationLoadStrategy` on the top-level in your query. The top-level choice will affect all nested sub-queries.
+
+#### Examples
+
+##### Load the `posts` relation via a database-level JOIN when using `include`
+
+```ts
+const users = await prisma.user.findMany({
+  relationLoadStrategy: "join",
+  include: {
+    posts: true,
+  },
+});
+```
+
+##### Load the `posts` relation via a database-level JOIN when using `select`
+
+```ts
+const users = await prisma.user.findMany({
+  relationLoadStrategy: "join",
+  select: {
+    posts: true,
+  },
+});
+```
+
+### `where`
+
+`where` defines one or more [filters](/orm/v7/reference/prisma-client/filter-conditions-and-operators), and can be used to filter on record properties (like a user's email address) or related record properties (like a user's top 10 most recent post titles).
+
+#### Examples
+
+```ts
+const results = await prisma.user.findMany({
+  where: {
+    email: {
+      endsWith: "prisma.io",
+    },
+  },
+});
+```
+
+#### Generated types for `where`
+
+The following examples demonstrate how to use TypeScript's `satisfies` operator with `where`:
+
+- `UserWhereInput`
+
+  ```ts
+  // UserWhereInput
+  const whereNameIs = { name: "Rich" } satisfies Prisma.UserWhereInput;
+
+  // It can be combined with conditional operators too
+  const whereNameIsWithAnd = {
+    name: "Rich",
+    AND: [
+      {
+        email: {
+          contains: "rich@boop.com",
+        },
+      },
+    ],
+  } satisfies Prisma.UserWhereInput;
+  ```
+
+- `UserWhereUniqueInput` This type works by exposing any unique fields on the model. A field assigned `@id` is considered unique,
+  as is one assigned `@unique`.
+
+  This type exposes all fields on the model. This means that when you filter for a single record based on a unique field, you can check additional non-unique and unique fields at the same time. Learn more about how to [filter on non-unique fields with `UserWhereUniqueInput`](/orm/v7/reference/prisma-client-reference#filter-on-non-unique-fields-with-userwhereuniqueinput).
+
+  ```ts
+  // UserWhereUniqueInput
+  const whereEmailIsUnique = { email: "rich@boop.com" } satisfies Prisma.UserWhereUniqueInput;
+  ```
+
+- `PostScalarWhereInput`
+
+  ```ts
+  const whereScalarTitleIs = { title: "boop" } satisfies Prisma.PostScalarWhereInput;
+  ```
+
+- `PostUpdateWithWhereUniqueWithoutAuthorInput` - This type accepts a unique `where` field (an `@id` or another assigned `@unique`)
+  and updates any field on the `Post` model except the `Author`. The `Author` is the scalar field on the `Post` model.
+
+  ```ts
+  const updatePostByIdWithoutAuthor = {
+    where: { id: 1 },
+    data: {
+      content: "This is some updated content",
+      published: true,
+      title: "This is a new title",
+    },
+  } satisfies Prisma.PostUpdateWithWhereUniqueWithoutAuthorInput;
+  ```
+
+- `PostUpsertWithWhereUniqueWithoutAuthorInput` - This type will update the `Post` records title field where the id matches, if it doesn't exist it will create it instead.
+
+  ```ts
+  const updatePostTitleOrCreateIfNotExist = {
+    where: { id: 1 },
+    update: { title: "This is a new title" },
+    create: {
+      id: 1,
+      title: "If the title doesn't exist, then create one with this text",
+    },
+  } satisfies Prisma.PostUpsertWithWhereUniqueWithoutAuthorInput;
+  ```
+
+- `PostUpdateManyWithWhereWithoutAuthorInput` - This type will update all `Post` records where published is set to false.
+
+  ```ts
+  const publishAllPosts = {
+    where: { published: { equals: false } },
+    data: { published: true },
+  } satisfies Prisma.PostUpdateManyWithWhereWithoutAuthorInput;
+  ```
+
+### `orderBy`
+
+Sorts a list of records. See also: [Sorting](/orm/v7/prisma-client/queries/filtering-and-sorting)
+
+#### Remarks
+
+- You can [order by relation fields](#sort-post-by-the-related-user-records-name) - for example, order posts by the author's name.
+- In PostgreSQL you can [order by relevance](#sort-post-by-relevance-of-the-title). For details, see [Sort by relevance](/orm/v7/prisma-client/queries/filtering-and-sorting#sort-by-relevance-postgresql-and-mysql).
+- You can [sort `null` records first or last](#sort-post-by-the-related-user-records-name-with-null-records-first). For details, see [Sort with nulls first or last](/orm/v7/prisma-client/queries/filtering-and-sorting#sort-with-null-records-first-or-last).
+
+#### Inputs for `sort` argument
+
+| Name   | Description                  |
+| ------ | ---------------------------- |
+| `asc`  | Sort ascending (A &rarr; Z)  |
+| `desc` | Sort descending (Z &rarr; A) |
+
+#### Inputs for `nulls` argument
+
+Note:
+
+- This argument is optional.
+- For use on optional [scalar](/orm/v7/prisma-schema/data-model/models#scalar-fields) fields only. If you try to sort by nulls on a required or [relation](/orm/v7/prisma-schema/data-model/models#relation-fields) field, Prisma Client throws a [P2009 error](/orm/v7/reference/error-reference#p2009).
+
+| Name    | Description                    |
+| ------- | ------------------------------ |
+| `first` | Sort with `null` values first. |
+| `last`  | Sort with `null` values last.  |
+
+#### Examples
+
+##### Sort `User` by `email` field
+
+The following example returns all `User` records sorted by `email` ascending:
+
+```ts
+const users = await prisma.user.findMany({
+  orderBy: {
+    email: "asc",
+  },
+});
+```
+
+The following example returns all `User` records sorted by `email` descending:
+
+```ts
+const users = await prisma.user.findMany({
+  orderBy: {
+    email: "desc",
+  },
+});
+```
+
+#### Sort `Post` by the related `User` record's `name`
+
+The following query orders posts by user name:
+
+```ts
+const posts = await prisma.post.findMany({
+  orderBy: {
+    author: {
+      name: "asc",
+    },
+  },
+});
+```
+
+#### Sort `Post` by the related `User` record's `name`, with `null` records first
+
+The following query orders posts by user name, with `null` records first:
+
+```ts
+const posts = await prisma.post.findMany({
+  orderBy: {
+    author: {
+      name: { sort: "asc", nulls: "first" },
+    },
+  },
+});
+```
+
+#### Sort `Post` by relevance of the title
+
+:::info
+
+For PostgreSQL, this feature is still in Preview. [Enable the `fullTextSearchPostgres` feature flag](/orm/v7/prisma-client/queries/full-text-search#enabling-full-text-search-for-postgresql) in order to use it.
+
+:::
+
+The following query orders posts by relevance of the search term `'database'` to the title:
+
+```ts
+const posts = await prisma.post.findMany({
+  orderBy: {
+    _relevance: {
+      fields: ['title'],
+      search: 'database',
+      sort: 'asc'
+    },
+})
+```
+
+#### Sort `User` by the `posts` count
+
+The following query orders users by post count:
+
+```ts
+const getActiveusers = await prisma.user.findMany({
+  orderBy: {
+    posts: {
+      count: "desc",
+    },
+  },
+});
+```
+
+##### Sort `User` by multiple fields - `email` _and_ `role`
+
+The following example sorts users by two fields - first `email`, then `role`:
+
+```ts
+const users = await prisma.user.findMany({
+  select: {
+    email: true,
+    role: true,
+  },
+  orderBy: [
+    {
+      email: "desc",
+    },
+    {
+      role: "desc",
+    },
+  ],
+});
+```
+
+```json
+[
+  {
+    "email": "yuki@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "nora@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "mary@prisma.io",
+    "role": "MODERATOR"
+  },
+  {
+    "email": "elsa@prisma.io",
+    "role": "MODERATOR"
+  },
+  {
+    "email": "eloise@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "coco@prisma.io",
+    "role": "ADMIN"
+  },
+  {
+    "email": "anna@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "alice@prisma.io",
+    "role": "USER"
+  }
+]
+```
+
+The order of sorting parameters matters - the following query sorts by `role`, then `email`. Note the difference in the results:
+
+```ts
+const users = await prisma.user.findMany({
+  select: {
+    email: true,
+    role: true,
+  },
+  orderBy: [
+    {
+      role: "desc",
+    },
+    {
+      email: "desc",
+    },
+  ],
+});
+```
+
+```json
+[
+  {
+    "email": "mary@prisma.io",
+    "role": "MODERATOR"
+  },
+  {
+    "email": "elsa@prisma.io",
+    "role": "MODERATOR"
+  },
+  {
+    "email": "yuki@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "nora@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "eloise@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "anna@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "alice@prisma.io",
+    "role": "USER"
+  },
+  {
+    "email": "coco@prisma.io",
+    "role": "ADMIN"
+  }
+]
+```
+
+##### Sort `User` by `email`, select `name` and `email`
+
+The following example returns all the `name` and `email` fields of all `User` records, sorted by `email`:
+
+```ts
+const users3 = await prisma.user.findMany({
+  orderBy: {
+    email: "asc",
+  },
+  select: {
+    name: true,
+    email: true,
+  },
+});
+```
+
+```json
+[
+  {
+    name: "Alice",
+    email: "alice@prisma.io",
+  },
+  {
+    name: "Ariadne",
+    email: "ariadne@prisma.io",
+  },
+  {
+    name: "Bob",
+    email: "bob@prisma.io",
+  },
+];
+```
+
+##### Sort `User` records by `email` and sort nested `Post` records by `title`
+
+The following example:
+
+- Returns all `User` records sorted by `email`
+- For each `User` record, returns the `title` field of all nested `Post` records sorted by `title`
+
+```ts
+const usersWithPosts = await prisma.user.findMany({
+  orderBy: {
+    email: "asc",
+  },
+  include: {
+    posts: {
+      select: {
+        title: true,
+      },
+      orderBy: {
+        title: "asc",
+      },
+    },
+  },
+});
+```
+
+```json
+[
+  {
+    "id": 2,
+    "email": "alice@prisma.io",
+    "name": "Alice",
+    "posts": [
+      {
+        "title": "Watch the talks from Prisma Day 2019"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "email": "ariadne@prisma.io",
+    "name": "Ariadne",
+    "posts": [
+      {
+        "title": "How to connect to a SQLite database"
+      },
+      {
+        "title": "My first day at Prisma"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "email": "bob@prisma.io",
+    "name": "Bob",
+    "posts": [
+      {
+        "title": "Follow Prisma on Twitter"
+      },
+      {
+        "title": "Subscribe to GraphQL Weekly for community news "
+      }
+    ]
+  }
+]
+```
+
+##### Sort one user's nested list of `Post` records
+
+The following example retrieves a single `User` record by ID, as well as a list of nested `Post` records sorted by `title`:
+
+```ts
+const userWithPosts = await prisma.user.findUnique({
+  where: {
+    id: 1,
+  },
+  include: {
+    posts: {
+      orderBy: {
+        title: "desc",
+      },
+      select: {
+        title: true,
+        published: true,
+      },
+    },
+  },
+});
+```
+
+```json
+{
+  "email": "sarah@prisma.io",
+  "id": 1,
+  "name": "Sarah",
+  "extendedProfile": null,
+  "role": "USER",
+  "posts": [
+    {
+      "title": "Prisma Day 2020",
+      "published": false
+    },
+    {
+      "title": "My first post",
+      "published": false
+    },
+    {
+      "title": "All about databases",
+      "published": true
+    }
+  ]
+}
+```
+
+##### Sort by `enum`
+
+The following sorts all `User` records by `role` (an `enum`):
+
+```ts
+const sort = await prisma.user.findMany({
+  orderBy: {
+    role: "desc",
+  },
+  select: {
+    email: true,
+    role: true,
+  },
+});
+```
+
+```json
+[
+  {
+    "email": "emma@prisma.io",
+
+    "role": "USER"
+  },
+  {
+    "email": "suma@prisma.io",
+    "role": "ADMIN"
+  },
+  {
+    "email": "kwame@prisma.io",
+    "role": "ADMIN"
+  },
+  {
+    "email": "pearl@prisma.io",
+    "role": "ADMIN"
+  }
+]
+```
+
+#### Generated types for `orderBy`
+
+The following examples demonstrate how to use TypeScript's `satisfies` operator with `orderBy`:
+
+- `UserOrderByInput`
+  ```ts
+  const orderEmailsByDescending = { email: "desc" } satisfies Prisma.UserOrderByInput;
+  ```
+
+### `distinct`
+
+Deduplicate a list of records from [`findMany`](/orm/v7/reference/prisma-client/model-queries#findmany) or [`findFirst`](/orm/v7/reference/prisma-client/model-queries#findfirst). See also: [Aggregation, grouping, and summarizing](/orm/v7/prisma-client/queries/aggregation-grouping-summarizing#select-distinct)
+
+#### Examples
+
+##### Select distinct on a single field
+
+The following example returns all distinct `city` fields, and selects only the `city` and `country` fields:
+
+```ts
+const distinctCities = await prisma.user.findMany({
+  select: {
+    city: true,
+    country: true,
+  },
+  distinct: ["city"],
+});
+```
+
+```json
+[
+  { city: "Paris", country: "France" },
+  { city: "Lyon", country: "France" },
+];
+```
+
+##### Select distinct on multiple fields
+
+The following example returns all distinct `city` _and_ `country` field combinations, and selects only the `city` and `country` fields:
+
+```ts
+const distinctCitiesAndCountries = await prisma.user.findMany({
+  select: {
+    city: true,
+    country: true,
+  },
+  distinct: ["city", "country"],
+});
+```
+
+```json
+[
+  { city: "Paris", country: "France" },
+  { city: "Paris", country: "Denmark" },
+  { city: "Lyon", country: "France" },
+];
+```
+
+Note that there is now a "Paris, Denmark" in addition to "Paris, France":
+
+##### Select distinct in combination with a filter
+
+The following example returns all distinct `city` _and_ `country` field combinations where the user's email contains `"prisma.io"`, and selects only the `city` and `country` fields:
+
+```ts
+const distinctCitiesAndCountries = await prisma.user.findMany({
+  where: {
+    email: {
+      contains: "prisma.io",
+    },
+  },
+  select: {
+    city: true,
+    country: true,
+  },
+  distinct: ["city", "country"],
+});
+```
+
+```json
+[
+  { city: "Paris", country: "Denmark" },
+  { city: "Lyon", country: "France" },
+];
+```

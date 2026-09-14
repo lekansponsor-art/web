@@ -87,7 +87,7 @@ In this schema, the `Product` model has a `Photo[]` composite type, and the `Ord
 
 There are currently some limitations when using composite types in Prisma Client:
 
-- [`findUnique()`](/orm/v7/reference/prisma-client-reference#findunique) can't filter on composite types
+- [`findUnique()`](/orm/v7/reference/prisma-client/model-queries#findunique) can't filter on composite types
 - [`aggregate`](/orm/v7/prisma-client/queries/aggregation-grouping-summarizing#aggregate), [`groupBy()`](/orm/v7/prisma-client/queries/aggregation-grouping-summarizing#group-by), [`count`](/orm/v7/prisma-client/queries/aggregation-grouping-summarizing#count) don’t support composite operations
 
 ## Default values for required fields on composite types

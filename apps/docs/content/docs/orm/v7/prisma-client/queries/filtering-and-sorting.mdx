@@ -87,7 +87,7 @@ const posts = await prisma.post.findMany({
 
 ## Case-insensitive filtering
 
-Case sensitivity depends on your database provider and collation settings. For PostgreSQL, Prisma Client also supports specific case-insensitive filter modes on supported operators. See the [Prisma Client API reference](/orm/v7/reference/prisma-client-reference#mode) for details.
+Case sensitivity depends on your database provider and collation settings. For PostgreSQL, Prisma Client also supports specific case-insensitive filter modes on supported operators. See the [Prisma Client API reference](/orm/v7/reference/prisma-client/filter-conditions-and-operators#mode) for details.
 
 ## Sort by relation
 
@@ -105,4 +105,4 @@ Prisma Client supports explicit null ordering on supported databases so you can 
 
 - [Pagination](/orm/v7/prisma-client/queries/pagination)
 - [Select fields](/orm/v7/prisma-client/queries/select-fields)
-- [Prisma Client API reference](/orm/v7/reference/prisma-client-reference#filter-conditions-and-operators)
+- [Prisma Client API reference](/orm/v7/reference/prisma-client/filter-conditions-and-operators)

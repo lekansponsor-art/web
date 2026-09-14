@@ -2102,7 +2102,7 @@
     },
     {
       "source": "/docs/concepts/components/prisma-client/constructor",
-      "destination": "/docs/orm/v7/reference/prisma-client-reference#prismaclient",
+      "destination": "/docs/orm/v7/reference/prisma-client/prisma-client-constructor",
       "permanent": true
     },
     {
@@ -5982,7 +5982,7 @@
     },
     {
       "source": "/docs/reference/api-reference/prisma-client-reference/prismaclient",
-      "destination": "/docs/orm/v7/reference/prisma-client-reference#prismaclient",
+      "destination": "/docs/orm/v7/reference/prisma-client/prisma-client-constructor",
       "permanent": true
     },
     {
