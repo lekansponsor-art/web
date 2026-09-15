@@ -4,7 +4,7 @@ Written 2026-09-12, updated 2026-09-15, by the previous agent for the next one. 
 
 ## Transcript of the previous session
 
-The most recent session (2026-09-14 to 2026-09-15, the data-modeling pass and the Supported databases consolidation) is `/Users/will/.claude/projects/-Users-will-Projects-prisma-web--claude-worktrees-pr-conflicts-review-fb93f7/ce65cd59-a425-4754-9e75-9f9f740b388b.jsonl` (about 6 MB). Its worktree is `/Users/will/Projects/prisma/web/.claude/worktrees/pr-conflicts-review-fb93f7`, which holds `wip/c21/dm/` (the data-modeling briefs, page copies per round, and `extract.py` in `wip/c21/`), `wip/prisma-src/` (a plain `git archive` export of rc.10, not a worktree, because that session only had read access to `/Users/wmadden/Projects/prisma/prisma`), `wip/orm/` (a shallow clone of prisma/orm through the bot remote), and `wip/migrations-before-queries.md` (a brief for the ORM team, see below). Note that the two transcripts belong to two macOS users, `will` and `wmadden`, who are both Will; if a path is unreadable, tell Will and he grants access with an ACL.
+The most recent session (2026-09-14 to 2026-09-15, the data-modeling pass, the Supported databases consolidation, and the migrations pass) is `/Users/will/.claude/projects/-Users-will-Projects-prisma-web--claude-worktrees-pr-conflicts-review-fb93f7/ce65cd59-a425-4754-9e75-9f9f740b388b.jsonl` (about 6 MB). Its worktree is `/Users/will/Projects/prisma/web/.claude/worktrees/pr-conflicts-review-fb93f7`, which holds `wip/c21/dm/` and `wip/c21/mig/` (the data-modeling and migrations briefs, shared answers, page copies per round, and reports; `extract.py` is in `wip/c21/`), `wip/prisma-src-rc11/` (a plain export of prisma/orm at rc.11, `ff47560c9f`), `wip/prisma-src/` (a plain `git archive` export of rc.10, not a worktree, because that session only had read access to `/Users/wmadden/Projects/prisma/prisma`), `wip/orm/` (a shallow clone of prisma/orm through the bot remote), and `wip/migrations-before-queries.md` (a brief for the ORM team, see below). Note that the two transcripts belong to two macOS users, `will` and `wmadden`, who are both Will; if a path is unreadable, tell Will and he grants access with an ACL.
 
 The session before that is `/Users/wmadden/.claude/projects/-Users-wmadden-Projects-prisma-web--claude-worktrees-error-reference-follow-ups-81a8e7/29b9a58b-bb9f-48f4-8639-597b84cf76f8.jsonl` (about 15 MB; 2026-09-13 to 2026-09-14, the orm/reference and contract-authoring passes). If your sandbox cannot read it, tell Will straight away and wait: he will copy it into your worktree. Do not continue without it. The session before that one is at `/Users/will/.claude/projects/-Users-will-Projects-prisma-web--claude-worktrees-prisma-orm-8-docs-audit-5bdfd9/7636eb55-44f8-408f-b81e-481bd0140ea6.jsonl` (the audit and the fundamentals pass).
 
@@ -32,7 +32,7 @@ The previous agent's worktree is `/Users/wmadden/Projects/prisma/web/.claude/wor
 - Two things learned on the data-modeling pages: on MongoDB, `@map` renames the field in TypeScript as well as in the database, so the primary key is always `_id` in code. That is filed as a bug, TML-3247 on the Terminal team in Linear, related to TML-2961. And the `prisma-8` skill's `contract.md` says the default referential action is `Restrict`; the code writes no clause at all. Add that to D14.
 - prisma/orm#30296 (branch `docs/readme-v7-support-window`) fixes the README, CONTRIBUTING, and SECURITY to say Prisma 7 gets bug fixes and security updates for eighteen months after `8.0.0` final, matching the Release status page. Approved, auto-merge armed behind the merge queue as of 2026-09-15.
 - prisma/orm#30287 (open) makes `schema.prisma` a Prisma ORM 8 contract source (`prisma7Schema('prisma/schema.prisma')` in `prisma.config.ts`), so a Prisma 7 app runs `contract emit`, `db sign`, and `db verify` on the file it already has, with zero findings. When it ships (rc.12), the upgrade guide and Coming from Prisma ORM 7 are wrong where they describe `contract infer` plus hand edits, and the migrations section pass should know it is coming. `wip/migrations-before-queries.md` in the worktree above is the brief Will shared with the team on the route it enables (hand migrations to Prisma ORM 8 first, keep Prisma 7 queries); it lists what is still missing, including a `migrations: false` option for the Prisma 7 config.
-- The Prisma ORM 8 source used for every fact check is `prisma/orm` at `8.0.0-rc.10` (`cfccb09be2`). In a fresh worktree: `git -C /Users/wmadden/Projects/prisma/prisma worktree add <path> cfccb09be2`. Tag `v8.0.0-rc.11` exists upstream as of 2026-09-14 (`git -C /Users/wmadden/Projects/prisma/prisma fetch origin --tags`; tags are `v8.0.0-rc.N`), and npm `latest` for the three ORM packages is rc.11; the docs still say rc.10. Ask Will whether to move the source to rc.11 before the next section.
+- The Prisma ORM 8 source for the migrations pass was `prisma/orm` at `8.0.0-rc.11` (`ff47560c9f`), exported at `wip/prisma-src-rc11/` in the worktree above; use rc.11 for the next section unless Will says otherwise. Earlier sections used `8.0.0-rc.10` (`cfccb09be2`). In a fresh worktree: `git -C /Users/wmadden/Projects/prisma/prisma worktree add <path> cfccb09be2`. Tag `v8.0.0-rc.11` exists upstream as of 2026-09-14 (`git -C /Users/wmadden/Projects/prisma/prisma fetch origin --tags`; tags are `v8.0.0-rc.N`), and npm `latest` for the three ORM packages is rc.11; the docs still say rc.10. Ask Will whether to move the source to rc.11 before the next section.
 - The published `prisma` package (8.0.0-rc.15 on 2026-09-14) exports `./config`, so the docs import `definePrismaConfig` from `prisma/config`. The rc.10 source tree only has `@prisma/cli-engine` and every fact checker "corrects" it; revert them. Check with `npm view prisma@latest exports`.
 - pnpm on Will's machine (user `will`) could not switch to the pinned 12.3.4 because its managed install under `~/Library/pnpm/.tools/pnpm/12.3.4` was a placeholder; running that package's `install.js` fixed it. If `pnpm` prints `ENOEXEC`, that is the cause.
 - The design branch is checked out in the previous worktree at `wip/design/` (a git worktree under the gitignored `wip/`). In a fresh worktree, `git worktree add wip/design docs/orm8-docs-audit-design` after `git fetch bot` and `git branch -f docs/orm8-docs-audit-design bot/docs/orm8-docs-audit-design`.
@@ -62,26 +62,59 @@ The skill is `.claude/skills/docs-reader-review/` on `main`. Per page:
 1. Run `scripts/check-plain.sh` and fix hits.
 2. Dispatch a fresh Opus reader with `references/reader-persona.md` verbatim and only the page (a long page in slices by `##` heading, 400 to 700 lines each). Save its report with the extract script.
 3. Dispatch an Opus fixer per page or slice with: the skill's step 3 rules, `conventions.md` (shared verified facts and wording; the latest is `docs/orm-docs-audit/c21-contract-authoring/conventions.md` at commit 40c5394e3), the page's own conventions file if any, the report, and the source paths. Tell it which facts to look up before writing, a line budget, and to put `Q` markers in its report, not the page.
-4. Repeat. Four rounds was the point of diminishing returns on the fundamentals pages; from round three on, give the fixer a "no longer than it is now" budget, because pages grow and readers then trip on the additions.
+4. Repeat. Four rounds was the point of diminishing returns on the fundamentals pages; from round three on, give the fixer a word budget counted with `wc -w` (not lines: on the migrations pages fixers met line budgets by writing longer lines), because pages grow and readers then trip on the additions.
 5. Fact re-check by a separate Opus agent against the source, claim by claim, before the PR. On the fundamentals pages this caught seven real errors that the wording rounds had introduced or left standing. Do not skip it.
 6. Commit each round. Link check: `cd apps/docs && node_modules/.bin/fumadocs-mdx && node_modules/.bin/tsx ./scripts/lint-links.ts`. Spelling: `node_modules/.bin/cspell "content/docs/orm/**/*.mdx"` (random sample ids fail it; use `cuid2000...` style). Revert any `meta.json` the formatter touches.
 
 Readers keep asking for MongoDB depth on every page (fewer examples, no `.aggregate`, no cursor). That is a content gap, not wording; it is logged as C24 in `changes.md` and is out of scope for C21.
 
-## Current task: `orm/migrations/`
+## Done: `orm/migrations/` (PR #8281)
 
-`orm/reference/` (#8260, #8267), `orm/contract-authoring/` (#8271), and `orm/data-modeling/` (#8279) are done. Next is `orm/migrations/` (six pages: `how-migrations-work`, `generating-a-migration`, `applying-a-migration`, `editing-a-migration`, `rollbacks-and-recovery`, `the-migration-graph`), one PR for the section, where C25 (intermediate contracts, `brief-intermediate-contracts.md`) fits. The data-modeling pass is the closest model: `docs/orm-docs-audit/c21-data-modeling/` at 19138ba09 on the #8279 branch has its `conventions.md`, `page-conventions.md`, and every report, and the briefs are at `/Users/will/Projects/prisma/web/.claude/worktrees/pr-conflicts-review-fb93f7/wip/c21/dm/` (`factcheck-brief.md`, `fixer-brief.md`, `factcheck2-brief.md`). Copy `page-conventions.md` and adapt it. Things learned on the data-modeling pages:
+PR #8281 (branch `docs/orm8-plain-language-migrations`) is C21 on the six `orm/migrations/` pages, plus C25, a new section in Editing a migration: "When a backfill reads a column the migration removes". Open as of 2026-09-15.
 
-- Readers ask for setup material (the config file, `prisma orm init`, the command loop) in every round. Answer with one sentence and a link each time; do not add a setup section. The one exception that paid off: naming the command sequence once, in a Next steps bullet, without flags (`apps/docs/CLAUDE.md` forbids flags on guide pages, and CodeRabbit enforces it).
-- Error codes are noise to a first reader. Keep the one a Prisma ORM 7 reader will hit from habit (`PSL_ORPHANED_BACKRELATION`) and state the rule before the code; cut the rest.
-- Prisma ORM 7 comparisons ("Prisma ORM 7 called this the back-relation") are facts the rc.10 source cannot confirm. State them as Prisma ORM 7 facts and tell the final checker so.
-- On the migrations pages specifically: the `db` ref, `migrate dev` versus `db migrate`, `db sign` versus `db init`, and what `migration plan` writes (a directory, not a file) are the claims that drifted on other pages. Check them first.
-- From round three on, no-growth budgets and "prefer cutting". The section ended seven lines shorter than it started and the final re-check still found five drifts.
+The pass ran these steps:
+1. A banned-term pass and a fact check against rc.11.
+2. A real run of the pages' commands with `prisma` 8.0.0-rc.15 and a local PostgreSQL.
+3. Four reader rounds.
+4. A final fact re-check, which made 28 corrections.
+
+The briefs, shared answers, page copies per round, and every report are in `/Users/will/Projects/prisma/web/.claude/worktrees/pr-conflicts-review-fb93f7/wip/c21/mig/`. None is in the PR, because Will said not to add dispatches to PRs. The most useful files there:
+- `round2-notes.md`, which holds every final-check item and its resolution.
+- `round1-shared-answers.md` to `round4-shared-answers.md`, which are sourced facts about migrations.
+- `real-run-transcript.md`.
+- `notes-for-handover.md`, which lists the product bugs.
+- `fc2-drifts.md`, what the final check corrected.
+
+Things learned on this pass:
+- **Budget in words, not lines.** Round three's fixers met line budgets by writing longer lines, and four pages grew by up to 13%.
+- **Run the commands.** The real run caught several things that reading the source did not:
+  - a wrong rollback end state;
+  - an `updatedAt` column makes a backfill impossible to apply;
+  - the unfilled-placeholder failure was blamed on the wrong cause;
+  - the literal `{bin}` in CLI hints;
+  - `node migration.ts` works only from the project root.
+
+  Do the same for any section whose pages show commands.
+- **Shared answers every round.** Readers on all six pages asked the same questions. One shared-answers file per round kept the pages consistent. When a fact turns up while fixers run, send it to the affected fixer.
+- **Cross-check one checker's finding on the other pages.** The How migrations work checker found that a MongoDB re-run stops at a collection the failed run created. Three other pages said the opposite, and their checkers had confirmed it.
+- **Length.** The section went from 9997 words on `main` to 13749. Most of the growth answers questions readers asked every round, and C25 adds about 60 lines. Will has not said whether he wants a cutting round.
 
 ## After that, in order
 
-1. `orm/migrations/` (the current task, 6 pages, where C25 fits), then `orm/middleware/`, `orm/extensions/`, one PR per section.
-2. C25, `brief-intermediate-contracts.md`: intermediate contracts in data transform migrations. Fits the `orm/migrations/` section pass.
+1. Handle review on #8281 (the migrations section), then `orm/middleware/`, `orm/extensions/`, one PR per section.
+2. File the product bugs from the migrations pass, listed in `wip/c21/mig/notes-for-handover.md`, wherever Will decides. The list:
+   - `{bin}` is never replaced.
+   - Planner-written migrations don't type-check.
+   - An `updatedAt` backfill can never be applied.
+   - `migration new --from` writes a no-op migration that breaks planning.
+   - `node migration.ts` works only from the project root.
+   - `contract emit --config` misreports its output file names.
+   - The `db migrate` summary count is off.
+   - `npx prisma dev` needs an entry argument.
+   - `migration log` sorts rows applied in the same second by name.
+   - A MongoDB re-run after a partial failure stops at a collection the failed run created.
+
+   Outside the section: `studio/prisma-next.mdx` line 112 describes `migration plan` with no `db` ref wrongly. Also add to D14: the `prisma-8` skill says an un-recompiled `migration.ts` edit causes a hash mismatch, and it does not.
 3. C2, "Add Prisma ORM to an app you already started": scaffold a Prisma 7 app with an older `npm create prisma`, add ORM 8, write the page from what happens.
 4. C22 (a database on your machine: `prisma dev` first, Composer, Docker Compose) and C23 (runnable example repositories), both from a Discord user's feedback; see `journeys.md` J11 and J12.
 5. Briefs waiting for an ORM-side owner: `brief-skill-staleness.md` (D14), D17 in `changes.md`. Add to D14: the scorecard marks `contains`/`startsWith`/`endsWith` as reachable when they are not, and the skill still says N:M includes fail when they work.
@@ -97,4 +130,12 @@ Readers keep asking for MongoDB depth on every page (fewer examples, no `.aggreg
 - **Implicit many-to-many** is not supported at rc.10 or rc.11: two bare list fields raise `PSL_ORPHANED_BACKRELATION` and the message says to write a join model. The docs say so correctly. Serhii read the upgrade guide as saying many-to-many is unsupported; only the implicit form is.
 - **Operating contexts.** The Supported databases page covers only the database section of prisma/orm#25843. Runtimes, frameworks, deployment platforms, and languages have no Prisma ORM 8 page.
 - A team-facing summary of the whole project is published at https://claude.ai/code/artifact/3516e640-e939-4c4a-9db6-ff858027cf93 (Will's private artifact).
-
+- **Migrations pass: committing refs.** Should `migrations/app/refs/db.json` be committed? The same question applies to a `prod` ref. The source is silent, and no migrations page says.
+- **Migrations pass: `--advance-ref db`.** Why is it not the default in development? The source gives no reason.
+- **Migrations pass: the `prod` ref.** Does it mean what is deployed or what should be deployed, and should deploys move it?
+- **Migrations pass: merge workflow.** The graph page shows the diamond from the e2e test, with two merge migrations after both branches merge. `skills/prisma-8/references/migration-review.md` 116-130 recommends rebasing and replanning instead.
+- **Migrations pass: adoption order.** Generating a migration says sign, then plan, then migrate. The PostgreSQL upgrade guide says plan a baseline, sign, then set the `db` ref. Both work.
+- **Migrations pass: `db sign` failing on production.** Its error suggests running `db update` and then signing again. The pages do not recommend that on production.
+- **Migrations pass: Discord.** Should the pages name the `#prisma-next` channel? They now say only "ask on Discord".
+- **Migrations pass: Node.js version.** The published `prisma` 8.0.0-rc.15 declares `node >=22.18.0`, but the rc.11 monorepo declares `>=24`. The pages say 22.18.
+- **Migrations pass: concurrent PostgreSQL runs.** After waiting for the lock, the second run fails with a marker mismatch. The page says only that one waits for the other.
