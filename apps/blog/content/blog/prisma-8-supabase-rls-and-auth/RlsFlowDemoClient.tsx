@@ -58,7 +58,7 @@ const PHASES: Phase[] = [
     shortLabel: "Enforce",
     actor: "postgres",
     detail:
-      "Postgres evaluates the select policy for every row and returns only those where userId matches the token's auth.uid().",
+      "Postgres evaluates the select policy for every row and returns only those where userId matches the token's auth.uid(). This is the policy_select block from the schema, which Prisma migrated as CREATE POLICY.",
   },
 ];
 
@@ -94,9 +94,11 @@ class SmoothPre extends Component<{ code: HighlightedCode }> {
 
 type Props = {
   snippets: HighlightedCode[];
+  /** The schema policy block, pre-highlighted, shown on the Enforce step. */
+  policyHtml: string;
 };
 
-export function RlsFlowDemoClient({ snippets }: Props) {
+export function RlsFlowDemoClient({ snippets, policyHtml }: Props) {
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [inView, setInView] = useState(false);
@@ -124,7 +126,7 @@ export function RlsFlowDemoClient({ snippets }: Props) {
   }, [playing, inView]);
 
   const phase = PHASES[phaseIndex];
-  const code = snippets[phaseIndex];
+  const code = snippets[phaseIndex] as HighlightedCode | undefined;
 
   function goTo(index: number) {
     setPlaying(false);
@@ -185,10 +187,13 @@ export function RlsFlowDemoClient({ snippets }: Props) {
 
       <div className="bloom-demo-body">
         <div className="bloom-demo-code">
-          {/* Token transitions across languages (ts -> sql) lock up the main
-              thread in codehike's calculateTransitions; remounting on language
-              change swaps instantly instead of animating. */}
-          <SmoothPre key={code.lang} code={code} />
+          {code ? (
+            <SmoothPre key={code.lang} code={code} />
+          ) : (
+            // The Enforce step shows the policy block from the schema, highlighted
+            // with the Prisma 8 grammar, rather than another codehike snippet.
+            <div className="rls-flow-policy" dangerouslySetInnerHTML={{ __html: policyHtml }} />
+          )}
         </div>
 
         <div className="rls-flow-captions">

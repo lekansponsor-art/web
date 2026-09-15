@@ -1,5 +1,6 @@
 import { highlight, type HighlightedCode } from "codehike/code";
 import { RlsFlowDemoClient } from "./RlsFlowDemoClient";
+import { highlightPrisma8 } from "./highlight-prisma8";
 
 const SNIPPETS: { value: string; lang: string }[] = [
   {
@@ -42,18 +43,19 @@ const SNIPPETS: { value: string; lang: string }[] = [
   return c.json({ notes });
 });`,
   },
-  {
-    lang: "sql",
-    value: `-- applied by Postgres, not by your code
-CREATE POLICY note_owner_read ON note
-  FOR SELECT TO authenticated
-  USING ("userId"::uuid = auth.uid());`,
-  },
 ];
+
+// The policy Postgres enforces in step 4, as it appears in the Prisma schema.
+const POLICY = `policy_select note_owner_read {
+  target = Note
+  roles  = [authenticated]
+  using  = "\\"userId\\"::uuid = auth.uid()"
+}`;
 
 export async function RlsFlowDemo() {
   const highlighted = (await Promise.all(
     SNIPPETS.map(({ value, lang }) => highlight({ value, lang, meta: "" }, "github-from-css")),
   )) as HighlightedCode[];
-  return <RlsFlowDemoClient snippets={highlighted} />;
+  const policyHtml = await highlightPrisma8(POLICY);
+  return <RlsFlowDemoClient snippets={highlighted} policyHtml={policyHtml} />;
 }

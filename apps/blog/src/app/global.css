@@ -2166,6 +2166,31 @@ g[data-top="true"] .vector-demo-point {
 
 /* RLS flow walkthrough (prisma-8-supabase-rls-and-auth) */
 
+/* The RLS demo's code lines run to ~45 columns, so give the code column the
+   wider share, and let anything longer scroll instead of overlapping the captions. */
+.rls-flow .bloom-demo-body {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+.rls-flow .bloom-demo-code {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+@media (max-width: 720px) {
+  .rls-flow .bloom-demo-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.rls-flow-policy pre {
+  margin: 0;
+  padding: 0 18px;
+  background: transparent !important;
+  font: inherit;
+  white-space: pre;
+}
+
 .rls-flow-captions {
   display: flex;
   flex-direction: column;
