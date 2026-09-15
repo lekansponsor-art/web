@@ -12,6 +12,7 @@ import { bundledLanguages, type BundledLanguage, type LanguageRegistration } fro
 import { prisma8Language } from "@prisma-docs/ui/lib/prisma8-language";
 import { z } from "zod";
 import convert from "npm-to-yarn";
+import { rehypeCodeOptions } from "@prisma-docs/ui/mdx/rehype-code-options";
 
 export const blogPosts = defineCollections({
   type: "doc",
@@ -60,6 +61,8 @@ export const blogPosts = defineCollections({
 export default defineConfig({
   plugins: [lastModified()],
   mdxOptions: {
+    // Class-based Shiki token colours instead of a style attribute per token.
+    rehypeCodeOptions,
     remarkPlugins: [
       remarkDirective,
       remarkDirectiveAdmonition,

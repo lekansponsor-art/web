@@ -27,6 +27,7 @@
     "AUTOINCREMENT",
     "autoincrementing",
     "AUTOINSTALL",
+    "BACKRELATION",
     "autosuspend",
     "Baselining",
     "baselining",
@@ -181,6 +182,7 @@
     "libsql",
     "LIBSQL",
     "libz",
+    "lifecycles",
     "linestring",
     "Linktree",
     "linktree",
@@ -374,7 +376,6 @@
     "Streamdal",
     "stricli",
     "subclassing",
-    "Subtacts",
     "Sunsetting",
     "supabase",
     "Supabase",
@@ -462,7 +463,21 @@
     "Yewande",
     "yourapp",
     "yourdb",
-    "Zenstack"
+    "Zenstack",
+    "msgpackr",
+    "emnapi",
+    "solidjs",
+    "prerenders",
+    "urlencode",
+    "extensionless",
+    "EBADDEVENGINES",
+    "Initialising",
+    "dbsql",
+    "txexecute",
+    "txsql",
+    "ksuid",
+    "ltrim",
+    "rtrim"
   ],
   "patterns": [
     {
@@ -470,6 +485,9 @@
       "pattern": "/videoId=\"[A-Za-z0-9_-]{6,}\"/g"
     }
   ],
-  "ignoreRegExpList": ["mdxVideoIdAttribute"],
+  "ignoreRegExpList": [
+    "mdxVideoIdAttribute",
+    "/\\{\\/\\* extensions-catalog:start[\\s\\S]*?extensions-catalog:end \\*\\/\\}/g"
+  ],
   "ignorePaths": ["content/docs/orm/reference/error-reference.mdx"]
 }
