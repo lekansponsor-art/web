@@ -78,6 +78,7 @@ The pass ran these steps:
 3. Four reader rounds.
 4. A final fact re-check, which made 28 corrections.
 5. A language review by the operator, then a cutting round: one Opus fixer per page, a word ceiling, and the rule that facts stay fixed. Brief in `wip/c21/mig/cut-brief.md`.
+6. An explanation round after Will rejected the prose: one Opus fixer per page, no ceiling, rewriting against `.claude/skills/docs-reader-review/references/explain-not-state.md`. Brief in `wip/c21/mig/explain-brief.md`.
 
 The briefs, shared answers, page copies per round, and every report are in `/Users/will/Projects/prisma/web/.claude/worktrees/pr-conflicts-review-fb93f7/wip/c21/mig/`. None is in the PR, because Will said not to add dispatches to PRs. The most useful files there:
 - `round2-notes.md`, which holds every final-check item and its resolution.
@@ -99,7 +100,8 @@ Things learned on this pass:
 - **Shared answers every round.** Readers on all six pages asked the same questions. One shared-answers file per round kept the pages consistent. When a fact turns up while fixers run, send it to the affected fixer.
 - **Cross-check one checker's finding on the other pages.** The How migrations work checker found that a MongoDB re-run stops at a collection the failed run created. Three other pages said the opposite, and their checkers had confirmed it.
 - **Reader rounds bloat pages.** Each round answered readers by adding sentences, and each page ended up defining every term as if the reader arrived cold. The same eight facts were restated on every page. Plan a cutting round after the reader rounds, with the rule: define each term once per page at first use, link elsewhere, facts stay fixed. Fixers refuse ceilings they can only meet by deleting facts, which is right, so set ceilings as ceilings and accept the report.
-- **Length.** The section went from 9997 words on `main` to 13749 after the reader rounds and 12606 after the cutting round.
+- **Explain, do not state.** Will's biggest correction on this pass. The pages stated facts in short correct sentences and never said what they meant for the reader, with counting lead-ins ("Four things change it:") and fragment openers ("One name is special."). His model rewrite and the rules are in `.claude/skills/docs-reader-review/references/explain-not-state.md`, and `check-staccato.py` now flags the mechanical signs. Run that reference on every future section before the reader rounds, not after. Word ceilings make this habit worse: use them only against repetition.
+- **Length.** The section went from 9997 words on `main` to 13749 after the reader rounds, 12606 after the cutting round, and 15875 after the explanation round. Will has not objected to the length, only to the prose.
 - **Terminology.** Will banned movement metaphors for migrations (the database moves, the marker moves, the ref moves, the database is behind or catches up, where the database is). Say what a command changes and what the database ends up matching. "Database schema" is fine; only PostgreSQL namespaces make it ambiguous, and Will rejected reserving the word. Rules in `.claude/skills/docs-reader-review/references/banned-terms.md`, "Migration vocabulary".
 
 ## After that, in order
