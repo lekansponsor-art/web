@@ -56,6 +56,7 @@ test("returns 502 when the upstream API answers with an error", async () => {
   stubFetch(500, { error: "boom" });
   const res = await openApiSpecResponse();
   assert.equal(res.status, 502);
+  assert.equal(res.headers.get("cache-control"), "no-store");
 });
 
 test("returns 502 when the upstream fetch fails outright (network error or timeout)", async () => {
@@ -65,4 +66,5 @@ test("returns 502 when the upstream fetch fails outright (network error or timeo
   const res = await openApiSpecResponse();
   assert.equal(res.status, 502);
   assert.match(res.headers.get("content-type") ?? "", /application\/json/);
+  assert.equal(res.headers.get("cache-control"), "no-store");
 });

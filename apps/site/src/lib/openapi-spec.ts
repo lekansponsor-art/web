@@ -54,7 +54,9 @@ export async function getOpenApiSpec(): Promise<Record<string, unknown>> {
 /**
  * Shared response builder for the /openapi.json and /swagger.json route
  * handlers: returns the spec as JSON, or a 502 if the upstream API is
- * unreachable (rather than a confusing 500 or an empty body).
+ * unreachable (rather than a confusing 500 or an empty body). The 502 is sent
+ * with `Cache-Control: no-store` so a transient upstream failure is never held
+ * by the CDN or a client for the daily interval the success response uses.
  */
 export async function openApiSpecResponse(): Promise<Response> {
   try {
@@ -68,7 +70,10 @@ export async function openApiSpecResponse(): Promise<Response> {
   } catch {
     return new Response(JSON.stringify({ error: "OpenAPI spec temporarily unavailable" }), {
       status: 502,
-      headers: { "Content-Type": "application/json; charset=utf-8" },
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store",
+      },
     });
   }
 }
