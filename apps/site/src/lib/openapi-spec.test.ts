@@ -11,7 +11,7 @@ const upstream = {
 };
 
 function stubFetch(status: number, body: unknown) {
-  mock.method(
+  return mock.method(
     globalThis,
     "fetch",
     async () =>
@@ -25,10 +25,15 @@ function stubFetch(status: number, body: unknown) {
 afterEach(() => mock.restoreAll());
 
 test("injects the api.prisma.io servers entry the upstream spec omits", async () => {
-  stubFetch(200, upstream);
+  const fetchMock = stubFetch(200, upstream);
   const doc = await getOpenApiSpec();
   assert.deepEqual(doc.servers, [{ url: "https://api.prisma.io" }]);
   assert.equal((doc.info as { title?: string }).title, "Prisma Postgres Management API");
+
+  assert.equal(fetchMock.mock.callCount(), 1);
+  const [url, init] = fetchMock.mock.calls[0].arguments as [string, RequestInit];
+  assert.equal(url, "https://api.prisma.io/v1/doc");
+  assert.ok(init.signal instanceof AbortSignal, "upstream fetch is bounded by a timeout signal");
 });
 
 test("serves the spec as JSON with a cache header", async () => {
@@ -41,8 +46,17 @@ test("serves the spec as JSON with a cache header", async () => {
   assert.deepEqual(json.servers, [{ url: "https://api.prisma.io" }]);
 });
 
-test("returns 502 when the upstream API is unreachable", async () => {
+test("returns 502 when the upstream API answers with an error", async () => {
   stubFetch(500, { error: "boom" });
   const res = await openApiSpecResponse();
   assert.equal(res.status, 502);
+});
+
+test("returns 502 when the upstream fetch fails outright (network error or timeout)", async () => {
+  mock.method(globalThis, "fetch", async () => {
+    throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
+  });
+  const res = await openApiSpecResponse();
+  assert.equal(res.status, 502);
+  assert.match(res.headers.get("content-type") ?? "", /application\/json/);
 });

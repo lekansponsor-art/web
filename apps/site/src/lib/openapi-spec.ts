@@ -10,10 +10,15 @@
  */
 const SPEC_URL = "https://api.prisma.io/v1/doc";
 const API_SERVER = "https://api.prisma.io";
+// Bound the upstream call so a hung api.prisma.io surfaces as the 502 below
+// instead of running into the platform's function timeout. apps/docs uses 30s
+// for the same fetch at build time; a request-path fetch gets less.
+const UPSTREAM_TIMEOUT_MS = 15_000;
 
 export async function getOpenApiSpec(): Promise<Record<string, unknown>> {
   const res = await fetch(SPEC_URL, {
     headers: { "User-Agent": "prisma-www" },
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     // Revalidate hourly: the spec changes only when the API does.
     next: { revalidate: 3600 },
   });
