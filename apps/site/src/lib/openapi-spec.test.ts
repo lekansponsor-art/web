@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import test, { afterEach, mock } from "node:test";
 import { getOpenApiSpec, openApiSpecResponse } from "./openapi-spec";
 
-// A trimmed stand-in for what api.prisma.io/v1/doc returns: a valid OpenAPI 3.1
-// document that, like the real upstream, has no top-level `servers` entry.
+/**
+ * A trimmed stand-in for what api.prisma.io/v1/doc returns: a valid OpenAPI 3.1
+ * document that, like the real upstream, has no top-level `servers` entry.
+ */
 const upstream = {
   openapi: "3.1.0",
   info: { title: "Prisma Postgres Management API", version: "v1" },
   paths: { "/v1/projects": {} },
 };
 
+/** Replaces global `fetch` with one that answers every call with `body` at `status`. */
 function stubFetch(status: number, body: unknown) {
   return mock.method(
     globalThis,
@@ -41,7 +44,10 @@ test("serves the spec as JSON with a cache header", async () => {
   const res = await openApiSpecResponse();
   assert.equal(res.status, 200);
   assert.match(res.headers.get("content-type") ?? "", /application\/json/);
-  assert.ok(res.headers.get("cache-control")?.includes("max-age"));
+  assert.equal(
+    res.headers.get("cache-control"),
+    "public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400",
+  );
   const json = (await res.json()) as { servers?: unknown };
   assert.deepEqual(json.servers, [{ url: "https://api.prisma.io" }]);
 });
