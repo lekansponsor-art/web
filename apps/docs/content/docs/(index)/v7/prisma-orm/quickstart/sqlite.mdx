@@ -34,11 +34,11 @@ npx tsc --init
 Install the packages needed for this quickstart:
 
 ```npm
-npm install prisma@7.10.0 @types/node @types/better-sqlite3 -D
+npm install prisma@prev @types/node @types/better-sqlite3 -D
 ```
 
 ```npm
-npm install @prisma/client@7.10.0 @prisma/adapter-better-sqlite3 dotenv
+npm install @prisma/client@7 @prisma/adapter-better-sqlite3 dotenv
 ```
 
 :::note[pnpm users with SQLite]
@@ -80,7 +80,7 @@ Update `package.json` to enable ESM:
 
 ## 4. Initialize Prisma ORM
 
-You can now invoke the Prisma CLI by prefixing it with `npx`:
+You can now run Prisma CLI commands using your package manager:
 
 ```npm
 npx prisma
@@ -199,7 +199,7 @@ export { prisma };
 ```
 
 ### Using SQLite with Bun
-When targeting Bun, use the `@prisma/adapter-libsql` adapter instead of `@prisma/adapter-better-sqlite3`. Bun doesn’t support the native SQLite driver that `better-sqlite3` relies on (see the [`node:sqlite` reference](https://bun.com/reference/node/sqlite)). Instantiate Prisma Client like so:
+When targeting Bun, use the `@prisma/adapter-libsql` adapter instead of `@prisma/adapter-better-sqlite3`. Bun doesn't support the native SQLite driver that `better-sqlite3` relies on (see the [`node:sqlite` reference](https://bun.com/reference/node/sqlite)). Instantiate Prisma Client like so:
 
 ```ts
 import "dotenv/config";

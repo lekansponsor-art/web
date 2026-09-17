@@ -42,8 +42,8 @@ npx tsc --init
 Install the packages needed for this quickstart:
 
 ```npm
-npm install prisma@7.10.0 @types/node --save-dev
-npm install @prisma/client@7.10.0 @prisma/adapter-mariadb dotenv
+npm install prisma@prev @types/node --save-dev
+npm install @prisma/client@7 @prisma/adapter-mariadb dotenv
 ```
 
 Here's what each package does:
@@ -80,7 +80,7 @@ Update `package.json` to enable ESM:
 
 ## 4. Initialize Prisma ORM
 
-You can now invoke the Prisma CLI by prefixing it with `npx`:
+You can now run Prisma CLI commands using your package manager:
 
 ```npm
 npx prisma
